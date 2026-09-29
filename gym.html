@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRONPULSE | Gym Management Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0f11;--card:#17191d;--card2:#1e2126;--ink:#f2f4f7;--mut:#8b93a0;--line:#2a2e35;--lime:#c6f432;--red:#ff5d5d;--amb:#ffb020}
+*{box-sizing:border-box;margin:0}
+body{font-family:Barlow,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+h1,h2,.brand,.big{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(14,15,17,.94);backdrop-filter:blur(8px);z-index:5}
+.brand{font-size:1.8rem;font-weight:800}.brand span{color:var(--lime)}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:transparent;border:1px solid transparent;color:var(--mut);padding:9px 18px;border-radius:999px;font:600 .95rem Barlow,sans-serif;cursor:pointer}
+nav button.on{background:var(--lime);color:#111}
+nav button:not(.on):hover{color:var(--ink);border-color:var(--line)}
+main{max-width:1100px;margin:auto;padding:26px 20px 60px}
+h1{font-size:2.6rem;font-weight:800;line-height:1}
+.sub{color:var(--mut);margin:6px 0 22px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.stat .big{font-size:2.8rem;font-weight:800;color:var(--lime);line-height:1}
+.stat span{color:var(--mut);font-size:.9rem}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px}
+h2{font-size:1.5rem;font-weight:700;margin-bottom:12px}
+.form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+input,select{font:inherit;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--ink);min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+::-webkit-calendar-picker-indicator{filter:invert(.8)}
+.btn{border:0;background:var(--lime);color:#111;font:700 .95rem Barlow,sans-serif;padding:11px 20px;border-radius:10px;cursor:pointer}
+.btn.g{background:var(--card2);color:var(--ink);border:1px solid var(--line);padding:7px 14px}
+.btn.r{background:transparent;color:var(--red);border:1px solid var(--red);padding:7px 14px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.mini{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:18px}
+.mini .h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.price{font:800 2rem "Barlow Condensed","Arial Narrow",sans-serif;color:var(--lime);margin:8px 0}
+.mut{color:var(--mut);font-size:.9rem}
+.acts{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.tg{width:42px;height:24px;border-radius:14px;background:#3a3f48;border:0;position:relative;cursor:pointer;padding:0;flex-shrink:0}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.tg.on{background:var(--lime)}.tg.on::after{left:21px;background:#111}
+.wrapx{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:500;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
+.pill{padding:3px 12px;border-radius:999px;font-size:.8rem;font-weight:600}
+.a{background:rgba(198,244,50,.15);color:var(--lime)}.e{background:rgba(255,176,32,.15);color:var(--amb)}.x{background:rgba(255,93,93,.15);color:var(--red)}
+.bar{height:6px;background:var(--line);border-radius:4px;margin:10px 0;overflow:hidden}.bar i{display:block;height:100%;background:var(--lime)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 6px 3px 12px;font-size:.85rem;display:flex;gap:6px;align-items:center}
+.chip button{background:none;border:0;color:var(--mut);cursor:pointer;font-size:1rem}
+.empty{color:var(--mut);padding:10px 0}
+.tab{display:none}.tab.show{display:block}
+</style>
+</head>
+<body>
+<header>
+<div class="brand">IRON<span>PULSE</span></div>
+<nav id="nav">
+<button class="on" data-t="home">Overview</button><button data-t="plans">Plans</button><button data-t="members">Members</button><button data-t="classes">Classes</button>
+</nav>
+</header>
+<main>
+
+<div id="home" class="tab show">
+<h1>Overview</h1><p class="sub">Your gym at a glance.</p>
+<div class="stats">
+<div class="stat"><div class="big" id="s1">0</div><span>Active members</span></div>
+<div class="stat"><div class="big" id="s2">0</div><span>Expiring in 7 days</span></div>
+<div class="stat"><div class="big" id="s3">0</div><span>Total revenue</span></div>
+<div class="stat"><div class="big" id="s4">0</div><span>Upcoming classes</span></div>
+</div>
+<div class="box"><h2>Expiring soon</h2><div id="soon"></div></div>
+</div>
+
+<div id="plans" class="tab">
+<h1>Plans</h1><p class="sub">Create the memberships you sell.</p>
+<div class="box">
+<div class="form"><input id="pln" placeholder="Plan name (e.g. Monthly)"><input id="plp" type="number" min="1" placeholder="Price"><input id="pld" type="number" min="1" placeholder="Days"><button class="btn" id="addPlan">Add plan</button></div>
+<div class="grid" id="pg"></div><p class="empty" id="pe">No plans yet. Add your first one above.</p>
+</div></div>
+
+<div id="members" class="tab">
+<h1>Members</h1><p class="sub">Sign up members and track their membership.</p>
+<div class="box">
+<div class="form"><input id="mn" placeholder="Member name"><input id="mp" placeholder="Phone"><select id="mpl"></select><input id="ms" type="date"><button class="btn" id="addMem">Add member</button></div>
+<p class="mut" id="mh" style="display:none;margin-bottom:10px">Add at least one active plan first.</p>
+<div class="wrapx"><table><thead><tr><th>Member</th><th>Plan</th><th>Ends</th><th>Status</th><th></th></tr></thead><tbody id="mt"></tbody></table></div>
+<p class="empty" id="me">No members yet.</p>
+</div></div>
+
+<div id="classes" class="tab">
+<h1>Classes</h1><p class="sub">Schedule classes and book members in.</p>
+<div class="box">
+<div class="form"><input id="cn" placeholder="Class (e.g. HIIT)"><input id="cc" placeholder="Coach"><input id="cd" type="date"><input id="ct" type="time" value="18:00"><input id="ck" type="number" min="1" placeholder="Capacity"><button class="btn" id="addCls">Add class</button></div>
+<div class="grid" id="cg"></div><p class="empty" id="ce">No classes scheduled.</p>
+</div></div>
+
+</main>
+<script>
+// In-memory only: data resets when the page closes. A real gym system needs a database.
+const plans=[],members=[],classes=[];let mid=1;
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().split("T")[0];
+const addDays=(d,n)=>{const x=new Date(d+"T00:00:00");x.setDate(x.getDate()+n);return x.toISOString().split("T")[0]};
+const diff=d=>Math.round((new Date(d+"T00:00:00")-new Date(today()+"T00:00:00"))/864e5);
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function status(m){const r=diff(m.end);return r<0?["Expired","x"]:r<=7?["Expiring","e"]:["Active","a"]}
+function draw(){
+ $("pg").innerHTML=plans.map((p,i)=>`<div class="mini"><div class="h"><b>${esc(p.n)}</b><button class="tg ${p.on?'on':''}" aria-label="Toggle plan" onclick="ptg(${i})"></button></div><div class="price">${p.price}</div><div class="mut">${p.days} days</div><div class="acts"><button class="btn g" onclick="pedit(${i})">Edit price</button><button class="btn r" onclick="pdel(${i})">Delete</button></div></div>`).join("");
+ $("pe").style.display=plans.length?"none":"block";
+ const act=plans.map((p,i)=>({p,i})).filter(x=>x.p.on);
+ $("mpl").innerHTML=act.map(x=>`<option value="${x.i}">${esc(x.p.n)}</option>`).join("");
+ $("addMem").disabled=!act.length;$("mh").style.display=act.length?"none":"block";
+ $("mt").innerHTML=members.map(m=>{const s=status(m);return `<tr><td><b>${esc(m.n)}</b><div class="mut">${esc(m.ph||"")}</div></td><td>${esc(m.plan)}</td><td>${m.end}</td><td><span class="pill ${s[1]}">${s[0]}</span></td><td><button class="btn g" onclick="renew(${m.id})">Renew</button> <button class="btn r" onclick="mdel(${m.id})">Remove</button></td></tr>`}).join("");
+ $("me").style.display=members.length?"none":"block";
+ $("cg").innerHTML=classes.map((c,i)=>{const full=c.b.length>=c.cap;
+  const opts=members.filter(m=>!c.b.includes(m.id)&&diff(m.end)>=0).map(m=>`<option value="${m.id}">${esc(m.n)}</option>`).join("");
+  return `<div class="mini"><div class="h"><b>${esc(c.n)}</b><span class="mut">${c.d||"-"} · ${c.t}</span></div><div class="mut">Coach: ${esc(c.co||"-")}</div><div class="bar"><i style="width:${Math.min(100,c.b.length/c.cap*100)}%"></i></div><div class="mut">${c.b.length} / ${c.cap} booked${full?" · Full":""}</div>
+  <div class="chips">${c.b.map(id=>{const m=members.find(x=>x.id===id);return m?`<span class="chip">${esc(m.n)}<button aria-label="Remove booking" onclick="unbook(${i},${id})">×</button></span>`:""}).join("")}</div>
+  <div class="acts"><select id="bk${i}" ${full||!opts?"disabled":""}>${opts||"<option>No eligible members</option>"}</select><button class="btn" ${full||!opts?"disabled":""} onclick="book(${i})">Book</button><button class="btn r" onclick="cdel(${i})">Delete</button></div></div>`}).join("");
+ $("ce").style.display=classes.length?"none":"block";
+ const live=members.filter(m=>diff(m.end)>=0),soon=members.filter(m=>{const r=diff(m.end);return r>=0&&r<=7});
+ $("s1").textContent=live.length;$("s2").textContent=soon.length;
+ $("s3").textContent=members.reduce((t,m)=>t+m.paid,0);
+ $("s4").textContent=classes.filter(c=>!c.d||c.d>=today()).length;
+ $("soon").innerHTML=soon.length?soon.map(m=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(m.n)}</b> <span class="mut">ends ${m.end} (${diff(m.end)} days)</span></div>`).join(""):'<p class="empty">Nobody is expiring in the next 7 days.</p>';
+}
+$("addPlan").onclick=()=>{const n=$("pln").value.trim(),p=+$("plp").value,d=+$("pld").value;
+ if(!n||!(p>0)||!(d>0)){alert("Enter a plan name, a price and a number of days.");return}
+ plans.push({n,price:p,days:d,on:true});$("pln").value=$("plp").value=$("pld").value="";draw()};
+$("addMem").onclick=()=>{const n=$("mn").value.trim(),p=plans[+$("mpl").value];
+ if(!n||!p){alert("Enter the member name and choose a plan.");return}
+ const s=$("ms").value||today();
+ members.push({id:mid++,n,ph:$("mp").value.trim(),plan:p.n,price:p.price,days:p.days,start:s,end:addDays(s,p.days),paid:p.price});
+ $("mn").value=$("mp").value="";draw()};
+$("addCls").onclick=()=>{const n=$("cn").value.trim(),k=+$("ck").value;
+ if(!n||!(k>0)){alert("Enter a class name and a capacity.");return}
+ classes.push({n,co:$("cc").value.trim(),d:$("cd").value,t:$("ct").value,cap:k,b:[]});$("cn").value=$("cc").value=$("ck").value="";draw()};
+function ptg(i){plans[i].on=!plans[i].on;draw()}
+function pedit(i){const v=+prompt("New price:",plans[i].price);if(v>0){plans[i].price=v;draw()}}
+function pdel(i){if(confirm("Delete this plan? Existing members keep their data.")){plans.splice(i,1);draw()}}
+function renew(id){const m=members.find(x=>x.id===id);const base=diff(m.end)>=0?m.end:today();m.end=addDays(base,m.days);m.paid+=m.price;draw()}
+function mdel(id){if(!confirm("Remove this member?"))return;members.splice(members.findIndex(x=>x.id===id),1);classes.forEach(c=>c.b=c.b.filter(x=>x!==id));draw()}
+function book(i){const id=+$("bk"+i).value;if(id&&classes[i].b.length<classes[i].cap){classes[i].b.push(id);draw()}}
+function unbook(i,id){classes[i].b=classes[i].b.filter(x=>x!==id);draw()}
+function cdel(i){if(confirm("Delete this class?")){classes.splice(i,1);draw()}}
+$("nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("show"));$(b.dataset.t).classList.add("show")});
+$("ms").value=today();$("cd").min=today();
+draw();
+</script>
+</body>
+</html>
